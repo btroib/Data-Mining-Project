@@ -1,34 +1,47 @@
 import requests
 from bs4 import BeautifulSoup
+import os
 
-game_links = []
-game_numbered = []
-game_title = []
-game_date = []
-game_platform = []
-meta_score = []
-user_score = []
-game_summary = []
+
+# asking the the user the path where the files will be created
+output_path = input("Enter the path of the directory where the files should be created (absolute or relative): ")
+# this lines deals with relative and absolute paths
+output_path_abs = os.path.abspath(output_path)
+# if the given input directory does not exist, it will be created
+if not os.path.exists(output_path_abs):
+    os.mkdir(output_path_abs)
+
+# list with the dictionary keys
+dic_keys = ["Link", "Number", "Title", "Date", "Platform", "Meta Score", "User Score", "Game Summary"]
+# list with internal lists that are the dictionary values
+dic_values = [[]*i for i in range(len(dic_keys))]
+
 headers = {'User-Agent': ''}
 url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
-for i in range(183):
+for i in range(5):
     page_url = url[0:len(url)-1]+str(i)
     print(f'page_{i}')
     test = requests.get(page_url, headers=headers)
-    outfile = open(f'/Users/btroib/Desktop/Data_Mining_Project/pages_txt/page_{i}.html', 'w')
+    outfile = open(output_path_abs + f'/page_{i}.html', 'w')
     test.encoding = 'ISO-8859-1'
     outfile.write(str(test.text))
-    with open(f'/Users/btroib/Desktop/Data_Mining_Project/pages_txt/page_{i}.html') as html_file:
+    with open(output_path_abs + f'/page_{i}.html') as html_file:
         soup = BeautifulSoup(html_file, 'lxml')
         for game in soup.find_all('td', class_="clamp-summary-wrap"):
-            game_links.append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
-            game_numbered.append(game.find('span', class_="title numbered").text.split()[0])
-            game_title.append(game.h3.text)
-            game_date.append(' '.join(game.find('div', class_="clamp-details").text.split()[3:]))
-            game_platform.append(' '.join(game.find('span', class_="data").text.split()))
-            meta_score.append(game.find('div', class_="clamp-metascore").text.split()[1])
-            user_score.append(game.find('div', class_="clamp-userscore").text.split()[2])
-            game_summary.append(' '.join(game.find('div', class_="summary").text.split()))
+            dic_values[0].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
+            dic_values[1].append(game.find('span', class_="title numbered").text.split()[0])
+            dic_values[2].append(game.h3.text)
+            dic_values[3].append(' '.join(game.find('div', class_="clamp-details").text.split()[3:]))
+            dic_values[4].append(' '.join(game.find('span', class_="data").text.split()))
+            dic_values[5].append(game.find('div', class_="clamp-metascore").text.split()[1])
+            dic_values[6].append(game.find('div', class_="clamp-userscore").text.split()[2])
+            dic_values[7].append(' '.join(game.find('div', class_="summary").text.split()))
+
+
+# creating a dictionary using the lists 'dic_keys' and 'key_values'
+dic = dict(zip(dic_keys, dic_values))
+print(dic["Title"])
+
 # i = 0
 # for game in game_links:
 #     print(i)
@@ -43,36 +56,3 @@ for i in range(183):
 #         for details in soup.find_all('div', class_="details side_details"):
 #             game_rating.append(str(details.find('span', class_="data")).split())
 #     i += 1
-
-print(game_links)
-print(game_numbered[0:10])
-print(game_title[0:10])
-print(game_date[0:10])
-print(game_platform[0:10])
-print(meta_score[0:10])
-print(user_score[0:10])
-print(game_summary[0:10])
-
-def main():
-    """
-    get user input -
-    read text file, count and sort words
-    """
-
-    if len(sys.argv) != REQUIRED_NUM_OF_ARGS or not os.path.exists(sys.argv[ARG_FILE_NAME]):
-        print("usage: ./wordcount.py {--count | --topcount} file")
-        sys.exit(1)
-
-    option = sys.argv[ARG_OPTION]
-    filename = sys.argv[ARG_FILE_NAME]
-    if option == "--count":
-        print_words(filename)
-    elif option == "--topcount":
-        print_top(filename)
-    else:
-        print("unknown option: " + option)
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
