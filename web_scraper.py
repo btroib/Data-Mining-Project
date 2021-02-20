@@ -9,7 +9,6 @@ game_platform = []
 meta_score = []
 user_score = []
 game_summary = []
-game_rating = []
 headers = {'User-Agent': ''}
 url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
 for i in range(183):
@@ -53,3 +52,27 @@ print(game_platform[0:10])
 print(meta_score[0:10])
 print(user_score[0:10])
 print(game_summary[0:10])
+
+def main():
+    """
+    get user input -
+    read text file, count and sort words
+    """
+
+    if len(sys.argv) != REQUIRED_NUM_OF_ARGS or not os.path.exists(sys.argv[ARG_FILE_NAME]):
+        print("usage: ./wordcount.py {--count | --topcount} file")
+        sys.exit(1)
+
+    option = sys.argv[ARG_OPTION]
+    filename = sys.argv[ARG_FILE_NAME]
+    if option == "--count":
+        print_words(filename)
+    elif option == "--topcount":
+        print_top(filename)
+    else:
+        print("unknown option: " + option)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
