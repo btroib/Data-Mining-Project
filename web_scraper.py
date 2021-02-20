@@ -49,7 +49,7 @@ for i in range(1):
             dic["User Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
             dic["Game Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
 #' '.join
-print(dic["User Score"])
+print(dic)
 
 # i = 0
 # for game in game_links:
