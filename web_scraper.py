@@ -5,42 +5,51 @@ import os
 
 # asking the the user the path where the files will be created
 output_path = input("Enter the path of the directory where the files should be created (absolute or relative): ")
-# this lines deals with relative and absolute paths
-output_path_abs = os.path.abspath(output_path)
-# if the given input directory does not exist, it will be created
-if not os.path.exists(output_path_abs):
-    os.mkdir(output_path_abs)
+
+def abs_path_creator(input_path):
+    """This function receives a path (absolute or relative) and processes it to be good for the use in the program
+    It also creates a directory, in case it does not exist"""
+    output_path_abs = os.path.abspath(input_path)
+    if not os.path.exists(output_path_abs):
+        os.mkdir(output_path_abs)
+    return output_path_abs
+
 
 # list with the dictionary keys
-dic_keys = ["Link", "Number", "Title", "Date", "Platform", "Meta Score", "User Score", "Game Summary"]
-# list with internal lists that are the dictionary values
-dic_values = [[]*i for i in range(len(dic_keys))]
+d_keys = ["Link", "Number", "Title", "Date", "Platform", "Meta Score", "User Score", "Game Summary"]
+
+
+def dic_values_creator(dic_keys):
+    dic_values = [[] * k for k in range(len(dic_keys))]
+    return dic_values
+
+
+values = dic_values_creator(d_keys)
+
+dic = dict(zip(d_keys, values))
 
 headers = {'User-Agent': ''}
 url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
-for i in range(5):
-    page_url = url[0:len(url)-1]+str(i)
+for i in range(1):
+    page_url = url[0:len(url) - 1] + str(i)
     print(f'page_{i}')
     test = requests.get(page_url, headers=headers)
-    outfile = open(output_path_abs + f'/page_{i}.html', 'w')
+    outfile = open(abs_path_creator(output_path) + f'/page_{i}.html', 'w')
     test.encoding = 'ISO-8859-1'
     outfile.write(str(test.text))
-    with open(output_path_abs + f'/page_{i}.html') as html_file:
+    with open(abs_path_creator(output_path) + f'/page_{i}.html') as html_file:
         soup = BeautifulSoup(html_file, 'lxml')
         for game in soup.find_all('td', class_="clamp-summary-wrap"):
-            dic_values[0].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
-            dic_values[1].append(game.find('span', class_="title numbered").text.split()[0])
-            dic_values[2].append(game.h3.text)
-            dic_values[3].append(' '.join(game.find('div', class_="clamp-details").text.split()[3:]))
-            dic_values[4].append(' '.join(game.find('span', class_="data").text.split()))
-            dic_values[5].append(game.find('div', class_="clamp-metascore").text.split()[1])
-            dic_values[6].append(game.find('div', class_="clamp-userscore").text.split()[2])
-            dic_values[7].append(' '.join(game.find('div', class_="summary").text.split()))
-
-
-# creating a dictionary using the lists 'dic_keys' and 'key_values'
-dic = dict(zip(dic_keys, dic_values))
-print(dic["Title"])
+            dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
+            dic["Number"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
+            dic["Title"].append(game.h3.text)
+            dic["Date"].append(' '.join(game.find('div', class_="clamp-details").text.split()[-3:]))
+            dic["Platform"].append(' '.join(game.find('span', class_="data").text.split()))
+            dic["Meta Score"].append(game.find('div', class_="clamp-metascore").text.split()[1])
+            dic["User Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
+            dic["Game Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
+#' '.join
+print(dic["User Score"])
 
 # i = 0
 # for game in game_links:
