@@ -1,10 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import os
+import sys
 
-
-# asking the the user the path where the files will be created
-output_path = input("Enter the path of the directory where the files should be created (absolute or relative): ")
 
 def abs_path_creator(input_path):
     """This function receives a path (absolute or relative) and processes it to be good for the use in the program
@@ -15,41 +13,65 @@ def abs_path_creator(input_path):
     return output_path_abs
 
 
-# list with the dictionary keys
-d_keys = ["Link", "Number", "Title", "Date", "Platform", "Meta Score", "User Score", "Game Summary"]
+def dic_keys_creator(to_scrap):
+    """This function receives a list and returns it with the string is the format of title"""
+    d_keys = [key.title() for key in to_scrap]
+    return d_keys
 
 
 def dic_values_creator(dic_keys):
+    """This function receives a list and returns another one with n empy lists, where n is the size of the imput list"""
     dic_values = [[] * k for k in range(len(dic_keys))]
     return dic_values
 
 
-values = dic_values_creator(d_keys)
+def main():
 
-dic = dict(zip(d_keys, values))
+    output_path = sys.path[1]
+    pages_to_scrap = int(sys.path[2])
+    categories_to_scrap = sys.path[3]
 
-headers = {'User-Agent': ''}
-url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
-for i in range(1):
-    page_url = url[0:len(url) - 1] + str(i)
-    print(f'page_{i}')
-    test = requests.get(page_url, headers=headers)
-    outfile = open(abs_path_creator(output_path) + f'/page_{i}.html', 'w')
-    test.encoding = 'ISO-8859-1'
-    outfile.write(str(test.text))
-    with open(abs_path_creator(output_path) + f'/page_{i}.html') as html_file:
-        soup = BeautifulSoup(html_file, 'lxml')
-        for game in soup.find_all('td', class_="clamp-summary-wrap"):
-            dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
-            dic["Number"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
-            dic["Title"].append(game.h3.text)
-            dic["Date"].append(' '.join(game.find('div', class_="clamp-details").text.split()[-3:]))
-            dic["Platform"].append(' '.join(game.find('span', class_="data").text.split()))
-            dic["Meta Score"].append(game.find('div', class_="clamp-metascore").text.split()[1])
-            dic["User Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
-            dic["Game Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
-#' '.join
-print(dic)
+    abs_path = abs_path_creator(output_path)
+    dic_key_list = dic_keys_creator(categories_to_scrap)
+    dic_values_list = dic_values_creator(dic_key_list)
+
+    dic = dict(zip(dic_key_list, dic_values_list))
+
+    headers = {'User-Agent': ''}
+    url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
+    for i in range(pages_to_scrap):
+        page_url = url[0:len(url) - 1] + str(i)
+        print(f'page_{i}')
+        test = requests.get(page_url, headers=headers)
+        outfile = open(abs_path + f'/page_{i}.html', 'w')
+        test.encoding = 'ISO-8859-1'
+        outfile.write(str(test.text))
+        with open(abs_path + f'/page_{i}.html') as html_file:
+            soup = BeautifulSoup(html_file, 'lxml')
+            for game in soup.find_all('td', class_="clamp-summary-wrap"):
+                if "Link" in categories_to_scrap:
+                    dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
+                if "Number" in categories_to_scrap:
+                    dic["Number"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
+                if "Title" in categories_to_scrap:
+                    dic["Title"].append(game.h3.text)
+                if "Date" in categories_to_scrap:
+                    dic["Date"].append(' '.join(game.find('div', class_="clamp-details").text.split()[-3:]))
+                if "Platform" in categories_to_scrap:
+                    dic["Platform"].append(' '.join(game.find('span', class_="data").text.split()))
+                if "Meta Score" in categories_to_scrap:
+                    dic["Meta Score"].append(game.find('div', class_="clamp-metascore").text.split()[1])
+                if "User Score" in categories_to_scrap:
+                    dic["User Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
+                if "Game Summary" in categories_to_scrap:
+                    dic["Game Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
+    print(dic)
+
+
+
+
+
+
 
 # i = 0
 # for game in game_links:
