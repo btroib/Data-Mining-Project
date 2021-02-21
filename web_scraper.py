@@ -2,15 +2,18 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import sys
+import pandas as pd
+
+REQUIRED_NUM_OF_ARGS = 3
+POSSIBLE_CATEGORIES = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
 
 
 def abs_path_creator(input_path):
     """This function receives a path (absolute or relative) and processes it to be good for the use in the program
     It also creates a directory, in case it does not exist"""
-    output_path_abs = os.path.abspath(input_path)
-    if not os.path.exists(output_path_abs):
-        os.mkdir(output_path_abs)
-    return output_path_abs
+    if not os.path.exists(input_path):
+        os.mkdir(input_path)
+    return os.path.abspath(input_path)
 
 
 def dic_keys_creator(to_scrap):
@@ -27,66 +30,63 @@ def dic_values_creator(dic_keys):
 
 def main():
 
-    output_path = sys.argv[1]
-    pages_to_scrap = int(sys.argv[2])
-    categories_to_scrap = sys.argv[3:]
+    if len(sys.argv) < REQUIRED_NUM_OF_ARGS:
+        print("ERROR: Insufficient input.")
+        print("usage: /web_scraper.py /output_path #pages Link Rank Title...)")
+        sys.exit(1)
 
-    abs_path = abs_path_creator(output_path)
-    dic_key_list = dic_keys_creator(categories_to_scrap)
-    dic_values_list = dic_values_creator(dic_key_list)
+    try:
+        output_path = sys.argv[1]
+        pages_to_scrap = int(sys.argv[2])
+        categories_to_scrap = sys.argv[3:]
+        abs_path = abs_path_creator(output_path)
+        dic_key_list = dic_keys_creator(categories_to_scrap)
+        for key in dic_key_list:
+            if key not in POSSIBLE_CATEGORIES:
+                print(f'ERROR: "{key}" data is not compatible with the data_scraper. Verify that your input is one of'
+                      f' these available categories: {POSSIBLE_CATEGORIES}')
+                raise SyntaxError
+        dic_values_list = dic_values_creator(dic_key_list)
+        dic = dict(zip(dic_key_list, dic_values_list))
 
-    dic = dict(zip(dic_key_list, dic_values_list))
+        headers = {'User-Agent': ''}
+        url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
+        for i in range(pages_to_scrap):
+            page_url = url[0:len(url) - 1] + str(i)
+            print(f'Downloading page_{i}...')
+            test = requests.get(page_url, headers=headers)
+            outfile = open(abs_path + f'/page_{i}.html', 'w')
+            test.encoding = 'ISO-8859-1'
+            outfile.write(str(test.text))
+            with open(abs_path + f'/page_{i}.html') as html_file:
+                soup = BeautifulSoup(html_file, 'lxml')
+                for game in soup.find_all('td', class_="clamp-summary-wrap"):
+                    if "Link" in dic_key_list:
+                        dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title"))
+                                           .split('\"')[3])
+                    if "Rank" in dic_key_list:
+                        dic["Rank"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
+                    if "Title" in dic_key_list:
+                        dic["Title"].append(game.h3.text)
+                    if "Date" in dic_key_list:
+                        dic["Date"].append(' '.join(game.find('div', class_="clamp-details").text.split()[-3:]))
+                    if "Platform" in dic_key_list:
+                        dic["Platform"].append(' '.join(game.find('span', class_="data").text.split()))
+                    if "Meta_Score" in dic_key_list:
+                        dic["Meta_Score"].append(game.find('div', class_="clamp-metascore").text.split()[1])
+                    if "User_Score" in dic_key_list:
+                        dic["User_Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
+                    if "Game_Summary" in dic_key_list:
+                        dic["Game_Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
+        df = pd.DataFrame(dic)
+        print(df)
+    except SyntaxError:
+        sys.exit(1)
 
-    headers = {'User-Agent': ''}
-    url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
-    for i in range(pages_to_scrap):
-        page_url = url[0:len(url) - 1] + str(i)
-        print(f'page_{i}')
-        test = requests.get(page_url, headers=headers)
-        outfile = open(abs_path + f'/page_{i}.html', 'w')
-        test.encoding = 'ISO-8859-1'
-        outfile.write(str(test.text))
-        with open(abs_path + f'/page_{i}.html') as html_file:
-            soup = BeautifulSoup(html_file, 'lxml')
-            for game in soup.find_all('td', class_="clamp-summary-wrap"):
-                if "Link" in categories_to_scrap:
-                    dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
-                if "Number" in categories_to_scrap:
-                    dic["Number"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
-                if "Title" in categories_to_scrap:
-                    dic["Title"].append(game.h3.text)
-                if "Date" in categories_to_scrap:
-                    dic["Date"].append(' '.join(game.find('div', class_="clamp-details").text.split()[-3:]))
-                if "Platform" in categories_to_scrap:
-                    dic["Platform"].append(' '.join(game.find('span', class_="data").text.split()))
-                if "Meta Score" in categories_to_scrap:
-                    dic["Meta Score"].append(game.find('div', class_="clamp-metascore").text.split()[1])
-                if "User Score" in categories_to_scrap:
-                    dic["User Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
-                if "Game Summary" in categories_to_scrap:
-                    dic["Game Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
-    print(dic)
+    except ValueError:
+        print('ERROR: Incorrect input. The number of pages must be numerical.')
+        sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-# i = 0
-# for game in game_links:
-#     print(i)
-#     page = requests.get(game, headers=headers)
-#     outfile = open(f'/Users/btroib/Desktop/Data_Mining_Project/pages_txt/game_{i}.html', 'w')
-#     page.encoding = 'ISO-8859-1'
-#     outfile.write(str(page.text))
-
-# for i in range(0,1):
-#     with open(f'/Users/btroib/Desktop/Data_Mining_Project/pages_txt/game_{i}.html') as html_file:
-#         soup = BeautifulSoup(html_file, 'lxml')
-#         for details in soup.find_all('div', class_="details side_details"):
-#             game_rating.append(str(details.find('span', class_="data")).split())
-#     i += 1

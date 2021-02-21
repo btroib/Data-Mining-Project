@@ -7,3 +7,17 @@
 *.iml
 out
 gen
+# i = 0
+# for game in game_links:
+#     print(i)
+#     page = requests.get(game, headers=headers)
+#     outfile = open(f'/Users/btroib/Desktop/Data_Mining_Project/pages_txt/game_{i}.html', 'w')
+#     page.encoding = 'ISO-8859-1'
+#     outfile.write(str(page.text))
+
+# for i in range(0,1):
+#     with open(f'/Users/btroib/Desktop/Data_Mining_Project/pages_txt/game_{i}.html') as html_file:
+#         soup = BeautifulSoup(html_file, 'lxml')
+#         for details in soup.find_all('div', class_="details side_details"):
+#             game_rating.append(str(details.find('span', class_="data")).split())
+#     i += 1
