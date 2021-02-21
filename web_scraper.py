@@ -27,9 +27,9 @@ def dic_values_creator(dic_keys):
 
 def main():
 
-    output_path = sys.path[1]
-    pages_to_scrap = int(sys.path[2])
-    categories_to_scrap = sys.path[3]
+    output_path = sys.argv[1]
+    pages_to_scrap = int(sys.argv[2])
+    categories_to_scrap = sys.argv[3:]
 
     abs_path = abs_path_creator(output_path)
     dic_key_list = dic_keys_creator(categories_to_scrap)
@@ -66,6 +66,9 @@ def main():
                 if "Game Summary" in categories_to_scrap:
                     dic["Game Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
     print(dic)
+
+if __name__ == '__main__':
+    main()
 
 
 
