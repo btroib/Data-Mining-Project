@@ -1,14 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
-import os
-import sys
 import pandas as pd
+import argparse
 
 REQUIRED_NUM_OF_ARGS = 3
 POSSIBLE_CATEGORIES = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
 
 
-class Data_Scraper:
+class DataScraper:
 
     def __init__(self, pages_to_scrape, categories):
         """
@@ -21,7 +20,8 @@ class Data_Scraper:
         self._dic = dict(zip(self._dic_keys, self._dic_values))
 
     def scrape_metacritic(self):
-        """This function receives the number of pages to scrape, and returns another one with n empy lists, where n is the size of the imput list"""
+        """This function receives the number of pages to scrape, and returns another one with n empy lists, where n is
+        the size of the imput list"""
         headers = {'User-Agent': ''}
         url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
         for i in range(self._pages_to_scrape):
@@ -31,7 +31,8 @@ class Data_Scraper:
             parsed_url = BeautifulSoup(requested_url.text, 'html.parser')
             for game in parsed_url.find_all('td', class_="clamp-summary-wrap"):
                 if "Link" in self._dic_keys:
-                    self._dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title")).split('\"')[3])
+                    self._dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title"))
+                                             .split('\"')[3])
                 if "Rank" in self._dic_keys:
                     self._dic["Rank"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
                 if "Title" in self._dic_keys:
@@ -49,12 +50,18 @@ class Data_Scraper:
         df = pd.DataFrame(self._dic)
         return df
 
-def main():
 
-    number_pages = int(sys.argv[1])
-    categories_to_scrape = sys.argv[2:]
-    scraper = Data_Scraper(number_pages, categories_to_scrape)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('Number_of_Pages', help="Number of web pages to be scraped.", type=int)
+    parser.add_argument('--categories', help="[Link, Rank, Title, Date, Platform, Meta_Score, User_Score, "
+                                             "Game_Summary]", nargs='+', type=str)
+    args = parser.parse_args()
+    number_pages = args.Number_of_Pages
+    categories_to_scrape = args.categories
+    scraper = DataScraper(number_pages, categories_to_scrape)
     print(scraper.scrape_metacritic())
+
 
 if __name__ == '__main__':
     main()
