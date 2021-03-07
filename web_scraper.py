@@ -2,10 +2,16 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import argparse
+import pymysql.cursors
+from getpass import getpass
+from tqdm import tqdm
 
 REQUIRED_NUM_OF_ARGS = 3
 POSSIBLE_CATEGORIES = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
-
+GAME_DATABASE = ['']
+PLATFORM_DATABASE = ['']
+GAME_SCORE_DATABASE = ['']
+N_TRIPS_TO_COMMIT = 10000
 
 class DataScraper:
 
@@ -50,6 +56,67 @@ class DataScraper:
         df = pd.DataFrame(self._dic)
         return df
 
+    def create_database(self):
+        password = getpass('Insert your MySQL password:')
+
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password=f'{password}',
+                                     cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cur:
+            cur.execute('DROP DATABASE IF EXISTS metacritic;')
+            cur.execute('CREATE DATABASE metacritic;')
+            cur.execute('USE metacritic;')
+            cur.execute("""CREATE TABLE game
+                        (id int PRIMARY KEY,
+                        link varchar(255),
+                        title varchar(255),
+                        date varchar(255),
+                        platform_id int REFERENCES platform(platform_id));""")
+            cur.execute("""CREATE TABLE platform
+                        (platform_id int PRIMARY KEY,
+                        platform_name varchar(255));""")
+            cur.execute("""CREATE TABLE game_score
+                        (game_id int REFERENCES game(id),
+                        ranking int,
+                        meta_score float,
+                        user_score float,
+                        platform_id int REFERENCES platform(platform_id));""")
+            print('database created')
+        n_rows = len(self._dic['Rank'])
+        for row in range(n_rows):
+            if 'Link' in self._dic_keys:
+                link_db = self._dic['Link'][row]
+            if 'Title' in self._dic_keys:
+                title_db = self._dic['Title'][row]
+            if 'Date' in self._dic_keys:
+                date_db = self._dic['Date'][row]
+            if 'Game_Summary' in self._dic_keys:
+                game_summary_db = self._dic['Game_Summary'][row]
+            if 'Platform' in self._dic_keys:
+                platform_name_db = self._dic['Platform'][row]
+            if 'Game_Summary' in self._dic_keys:
+                game_summary_db = self._dic['Game_Summary'][row]
+            if 'Rank' in self._dic_keys:
+                ranking_db = self._dic['Rank'][row]
+            if 'Meta_Score' in self._dic_keys:
+                meta_score_db = self._dic['Meta_Score'][row]
+            if 'User_Score' in self._dic_keys:
+                user_score_db = self._dic['User_Score'][row]
+            with connection.cursor() as cur:
+                cur.execute(f"""INSERT INTO game
+                            (id, link, title, date, platform_id)
+                            VALUES ("{row}", "{link_db}","{title_db}", "{date_db}", "{row}");""")
+                cur.execute(f"""INSERT INTO platform
+                                            (platform_id, platform_name)
+                                            VALUES ("{row}", '{platform_name_db}');""")
+                cur.execute(f"""INSERT INTO game_score
+                                            (game_id, ranking, meta_score, user_score, platform_id)
+                                            VALUES ("{row}", "{ranking_db}", "{meta_score_db}", "{user_score_db}", "{row}");""")
+                if row % N_TRIPS_TO_COMMIT == 0:
+                    connection.commit()
+            connection.commit()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -61,7 +128,34 @@ def main():
     categories_to_scrape = args.categories
     scraper = DataScraper(number_pages, categories_to_scrape)
     print(scraper.scrape_metacritic())
+    scraper.create_database()
 
+    # for key in categories_to_scrape:
+    #     if key not in POSSIBLE_CATEGORIES:
+    #         raise argparse.ArgumentTypeError()
+    # except argparse.ArgumentTypeError:
+    #     print(f'Error: Category name does not match any of the possible categories.')
+    # except argparse.ArgumentError:
+    #     print('Incorrect input.')
+    #     sys.exit(1)
+
+
+
+
+
+    # if len(sys.argv) < REQUIRED_NUM_OF_ARGS:
+    #     print("ERROR: Insufficient input.")
+    #     print("usage: /web_scraper.py /output_path #pages Link Rank Title...)")
+    #     print("usage: /web_scraper.py #pages Link Rank Title...)")
+    #     sys.exit(1)
+    # for key in dic_key_list:
+    #     if key not in POSSIBLE_CATEGORIES:
+    #         raise SyntaxError
+    # except SyntaxError:
+    #     sys.exit(1)
+    # except ValueError:
+    #     print('ERROR: Incorrect input. The number of pages must be numerical.')
+    #     sys.exit(1)
 
 if __name__ == '__main__':
     main()
