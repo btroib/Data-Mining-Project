@@ -50,10 +50,14 @@ class DataScraper:
                 if "Meta_Score" in self._dic_keys:
                     self._dic["Meta_Score"].append(game.find('div', class_="clamp-metascore").text.split()[1])
                 if "User_Score" in self._dic_keys:
-                    self._dic["User_Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
+                    if (game.find('div', class_="clamp-userscore").text.split()[2]) == 'tbd':
+                        self._dic["User_Score"].append(0)
+                    else:
+                        self._dic["User_Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
                 if "Game_Summary" in self._dic_keys:
                     self._dic["Game_Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
         df = pd.DataFrame(self._dic)
+        print(self._dic)
         return df
 
     def create_database(self):
