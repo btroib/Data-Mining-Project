@@ -17,7 +17,9 @@ class DataScraper:
 
     def __init__(self, pages_to_scrape, categories):
         """
-        Initiate the MetaCritic Data Scraper.
+        Initiates an object from the class DataScraper
+        :param pages_to_scrape: number of pages to scrape from Metacritic's website - int
+        :param categories: list of categories to be scraped
         """
         self._pages_to_scrape = pages_to_scrape
         self._categories = categories
@@ -26,8 +28,7 @@ class DataScraper:
         self._dic = dict(zip(self._dic_keys, self._dic_values))
 
     def scrape_metacritic(self):
-        """This function receives the number of pages to scrape, and returns another one with n empy lists, where n is
-        the size of the imput list"""
+        """Executes the website scrapping, storing the data in a dictionary and generating a DataFrame"""
         headers = {'User-Agent': ''}
         url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
         for i in range(self._pages_to_scrape):
@@ -57,7 +58,6 @@ class DataScraper:
                 if "Game_Summary" in self._dic_keys:
                     self._dic["Game_Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
         df = pd.DataFrame(self._dic)
-        print(self._dic)
         return df
 
     def create_database(self):
@@ -121,18 +121,28 @@ class DataScraper:
                     connection.commit()
             connection.commit()
 
+def parser():
 
-def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('Number_of_Pages', help="Number of web pages to be scraped.", type=int)
-    parser.add_argument('--categories', help="[Link, Rank, Title, Date, Platform, Meta_Score, User_Score, "
-                                             "Game_Summary]", nargs='+', type=str)
+
+    parser.add_argument('Number_of_Pages', help="Number of web pages to be scraped from Metacritic's Game website.",
+                        type=int)
+
+    parser.add_argument('Categories', choices=('Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score',
+                        'Game_Summary'), help="Option to chose for scrapping", nargs='+', type=str)
+
     args = parser.parse_args()
     number_pages = args.Number_of_Pages
-    categories_to_scrape = args.categories
-    scraper = DataScraper(number_pages, categories_to_scrape)
+    categories_to_scrape = args.Categories
+    return (number_pages, categories_to_scrape)
+
+
+def main():
+
+    inp = parser()
+    scraper = DataScraper(inp[0], inp[1])
     print(scraper.scrape_metacritic())
-    scraper.create_database()
+
 
     # for key in categories_to_scrape:
     #     if key not in POSSIBLE_CATEGORIES:
