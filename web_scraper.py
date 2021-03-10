@@ -125,15 +125,15 @@ def parser():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('Number_of_Pages', help="Number of web pages to be scraped from Metacritic's Game website.",
+    parser.add_argument('--number', nargs="?", const=1, help="Number of web pages to be scraped from Metacritic's Game website.",
                         type=int)
 
-    parser.add_argument('Categories', choices=('Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score',
+    parser.add_argument('--cat', choices=('Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score',
                         'Game_Summary'), help="Option to chose for scrapping", nargs='+', type=str)
 
     args = parser.parse_args()
-    number_pages = args.Number_of_Pages
-    categories_to_scrape = args.Categories
+    number_pages = args.number
+    categories_to_scrape = args.cat
     return (number_pages, categories_to_scrape)
 
 
