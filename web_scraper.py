@@ -14,6 +14,7 @@ PLATFORM_DATABASE = ['']
 GAME_SCORE_DATABASE = ['']
 N_TRIPS_TO_COMMIT = 10000
 
+# Logging configuration
 logging.basicConfig(filename='web_scraper.log', level=logging.INFO,
                     format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
 
@@ -115,6 +116,7 @@ class DataScraper:
 
 
 def parser():
+    " Function that parsers the user input using argparse"
     parse = argparse.ArgumentParser()
     cat_choices = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
 
@@ -127,6 +129,9 @@ def parser():
     args = parse.parse_args()
     number_pages = args.n
     categories_to_scrape = args.cat
+    if number_pages > 182:
+        raise Exception
+
     if not categories_to_scrape:
         categories_to_scrape = ['Title', 'Rank']
 
@@ -134,12 +139,15 @@ def parser():
 
 
 def main():
-    inp = parser()
-    scraper = DataScraper(inp[0], inp[1])
-    print(scraper.scrape_metacritic())
-    password = getpass('Insert your MySQL password:')
-    database_creator.create(password)
-    scraper.add_to_database(password)
+    try:
+        inp = parser()
+        scraper = DataScraper(inp[0], inp[1])
+        print(scraper.scrape_metacritic())
+        password = getpass('Insert your MySQL password:')
+        database_creator.create(password)
+        scraper.add_to_database(password)
+    except Exception:
+        logging.error(" It is not possible to scrape more than 182 pages")
 
 
 if __name__ == '__main__':

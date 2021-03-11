@@ -3,38 +3,43 @@
 
 ## Web Scraper
 
-### Description:
+### Program description:
 ***
 
-This program scrapes Metacritic's website for data regarding gaming. There are 182 pages on Metacritics gaming rank, each page contains 100 games from highest to lowest Metacritic ranking. The program will save each page in HTML format in an output path (absolute or relative) designated by the user. This web_scraper is capable of scraping the following data from each game: Link, Rank, Title, Date (release), Platform, Meta Score, User Score and Game Summary. You can choose how many web pages you request to scrape as well as which data to scrape for.
+This program scrapes Metacritic's website for data regarding gaming. There are 182 pages on Metacritics gaming rank, each page contains 100 games from highest to lowest Metacritic ranking. This web_scraper is capable of scraping the following data from each game: Link, Rank, Title, Date (release), Platform, Meta Score, and User Score. The user can choose how many web pages you request to scrape as well as which data to scrape for.
 
 ### Usage:
 ***
 To run the Web_Scraper from the command line, the following initial input must be given:
 ```
-python /web_scraper.py /output_path
+python /web_scraper.py --n <numbers of pages to scrap> --cat <categories to scrap>
 ```
-The user must also add the number of pages and the category which should be scraped. See below a description of all possible commands:
+Where 'numbers of pages to scrap' to scrap must be an integer from 1 to 182. If no value is passed, it will scrap 1 page by default.
 
-| Command | Example |
-| :-:  | ------ |
-| 1** | Each page contains 100 games in descending order. In this case, one page of metacritic would be downloaded returning the 100 highest ranking games.  |
-| Link | Will return you the game's Metacritic website URL.|
-| Rank | The game's Metacritic ranking score.|
-| Title | The game's title. |
-| Date | The game's date of release. |
-| Platform | The platform in which the game runs on. |
-| Meta_Score | Meta_Score is Metacritics score given by professional reviews. |
-| User_Score | User_Score is the score given by users on Metacritic. |
-| Game_Summary | Provides a short summary of the game. |
+'Numbers of pages to scrap' are case insensitive and their input order does not affect results. The input categories must be separated by " ".
+If no value is passed, it will scrap Title and Rank by default.
 
- ** Number of pages is a required input with a minimum value of 1.
 
 See below an example:
 ```
-python /web_scraper.py /output_path 10 Rank Title Date
+python /web_scraper.py --n 10 --cat Rank Title Date
 ```
-This command would result in the web_scraper downloading 10 pages and the categories of _Rank_, _Title_ and _Date_.
+This command would result in the web_scraper to analyze 10 pages and the categories _Rank_, _Title_ and _Date_.
+
+### Data description:
+***
+
+
+| Category | Description |
+| ------ | ------ |
+| Link | Returns the game's Metacritic website URL |
+| Rank| The game's Metacritic ranking score. |
+| Title| The game's title. |
+| Date | Date of release of the game |
+| Platform| The platform in which the game runs on. |
+| Meta_Score | Meta_Score is Metacritics score given by professional reviews. |
+| User_Score | User_Score is the score given by users on Metacritic. |
+
 
 ### Authors:
 ***
