@@ -5,6 +5,7 @@ import argparse
 import pymysql.cursors
 from getpass import getpass
 import database_creator
+import logging
 
 REQUIRED_NUM_OF_ARGS = 3
 POSSIBLE_CATEGORIES = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
@@ -13,6 +14,7 @@ PLATFORM_DATABASE = ['']
 GAME_SCORE_DATABASE = ['']
 N_TRIPS_TO_COMMIT = 10000
 
+logging.basicConfig(filename='webscraper.log', level=logging.INFO, format='%(asctime)s%(levelname)s%(message)s')
 
 class DataScraper:
 
@@ -34,7 +36,7 @@ class DataScraper:
         url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
         for i in range(self._pages_to_scrape):
             page_url = url[0:len(url) - 1] + str(i)
-            print(f'Downloading page_{i}...')
+            logging.info(f' Downloading page_{page_url}...')
             requested_url = requests.get(page_url, headers=headers)
             parsed_url = BeautifulSoup(requested_url.text, 'html.parser')
             for game in parsed_url.find_all('td', class_="clamp-summary-wrap"):
