@@ -13,6 +13,7 @@ PLATFORM_DATABASE = ['']
 GAME_SCORE_DATABASE = ['']
 N_TRIPS_TO_COMMIT = 10000
 
+
 class DataScraper:
 
     def __init__(self, pages_to_scrape, categories):
@@ -121,28 +122,27 @@ class DataScraper:
                     connection.commit()
             connection.commit()
 
+
 def parser():
-
     parser = argparse.ArgumentParser()
+    cat_choices = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
 
-    parser.add_argument('--number', nargs="?", const=1, help="Number of web pages to be scraped from Metacritic's Game website.",
-                        type=int)
+    parser.add_argument('--n', nargs="?", const=1, metavar='Number of pages',
+                        help="Number of web pages to be scraped from Metacritic's Game website.", type=int)
 
-    parser.add_argument('--cat', choices=('Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score',
-                        'Game_Summary'), help="Option to chose for scrapping", nargs='+', type=str)
+    parser.add_argument('--cat', metavar='Data categories', choices=cat_choices,
+                        help="Option to chose for scrapping", nargs='+', type=str.title, required=True)
 
     args = parser.parse_args()
-    number_pages = args.number
+    number_pages = args.n
     categories_to_scrape = args.cat
     return (number_pages, categories_to_scrape)
 
 
 def main():
-
     inp = parser()
     scraper = DataScraper(inp[0], inp[1])
     print(scraper.scrape_metacritic())
-
 
     # for key in categories_to_scrape:
     #     if key not in POSSIBLE_CATEGORIES:
@@ -152,10 +152,6 @@ def main():
     # except argparse.ArgumentError:
     #     print('Incorrect input.')
     #     sys.exit(1)
-
-
-
-
 
     # if len(sys.argv) < REQUIRED_NUM_OF_ARGS:
     #     print("ERROR: Insufficient input.")
@@ -170,6 +166,7 @@ def main():
     # except ValueError:
     #     print('ERROR: Incorrect input. The number of pages must be numerical.')
     #     sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
