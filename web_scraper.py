@@ -131,16 +131,21 @@ def parser():
                         help="Number of web pages to be scraped from Metacritic's Game website.", type=int)
 
     parser.add_argument('--cat', metavar='Data categories', choices=cat_choices,
-                        help="Option to chose for scrapping", nargs='+', type=str.title, required=True)
+                        help="Option to chose for scrapping", nargs='*',
+                        type=str.title, required=True)
 
     args = parser.parse_args()
     number_pages = args.n
     categories_to_scrape = args.cat
+    if not categories_to_scrape:
+        categories_to_scrape = ['Title','Rank']
+
     return (number_pages, categories_to_scrape)
 
 
 def main():
     inp = parser()
+    print(inp[0], inp[1])
     scraper = DataScraper(inp[0], inp[1])
     print(scraper.scrape_metacritic())
 
