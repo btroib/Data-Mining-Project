@@ -14,17 +14,17 @@ To run the Web_Scraper from the command line, the following initial input must b
 ```
 python /web_scraper.py --n <numbers of pages to scrap> --cat <categories to scrap>
 ```
-Where 'numbers of pages to scrap' to scrap must be an integer from 1 to 182. If no value is passed, it will scrap 1 page by default.
+Where 'numbers of pages to scrape' must be an integer from 1 to 182. If no value is passed, it will scrape 1 page by default.
 
-'Numbers of pages to scrap' are case insensitive and their input order does not affect results. The input categories must be separated by " ".
-If no value is passed, it will scrap Title and Rank by default.
+'Numbers of pages to scrape' are not case sensitive and their input order does not affect results. The input categories must be separated by " ".
+If no values are passed, it will scrape Title and Rank by default.
 
 
 See below an example:
 ```
 python /web_scraper.py --n 10 --cat Rank Title Date
 ```
-This command would result in the web_scraper to analyze 10 pages and the categories _Rank_, _Title_ and _Date_.
+This command would result in the web_scraper scraping 10 webpages for the categories _Rank_, _Title_ and _Date_.
 
 ### Data description:
 ***
