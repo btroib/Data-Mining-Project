@@ -14,7 +14,9 @@ PLATFORM_DATABASE = ['']
 GAME_SCORE_DATABASE = ['']
 N_TRIPS_TO_COMMIT = 10000
 
-logging.basicConfig(filename='webscraper.log', level=logging.INFO, format='%(asctime)s%(levelname)s%(message)s')
+logging.basicConfig(filename='web_scraper.log', level=logging.INFO,
+                    format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+
 
 class DataScraper:
 
@@ -60,6 +62,7 @@ class DataScraper:
                         self._dic["User_Score"].append(game.find('div', class_="clamp-userscore").text.split()[2])
                 if "Game_Summary" in self._dic_keys:
                     self._dic["Game_Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
+        logging.info(f' Data Frame successfully created with {self._dic_keys}')
         df = pd.DataFrame(self._dic)
         return df
 
@@ -141,3 +144,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
