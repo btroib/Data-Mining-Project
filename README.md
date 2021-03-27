@@ -29,7 +29,11 @@ This command would result in the web_scraper scraping 10 webpages for the catego
 ### Data description:
 ***
 
+The Entity Relationship Diagram contains four tables, see below the diagram:
+
 ![title](EDR.png)
+
+The description of all the categories is below:
 
 | Category | Description |
 | ------ | ------ |
