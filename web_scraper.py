@@ -6,6 +6,7 @@ import pymysql.cursors
 from getpass import getpass
 import database_creator
 import logging
+from tqdm import tqdm
 
 REQUIRED_NUM_OF_ARGS = 3
 POSSIBLE_CATEGORIES = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
@@ -37,7 +38,7 @@ class DataScraper:
         """Executes the website scrapping, storing the data in a dictionary and generating a DataFrame"""
         headers = {'User-Agent': ''}
         url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
-        for i in range(self._pages_to_scrape):
+        for i in tqdm(range(self._pages_to_scrape)):
             page_url = url[0:len(url) - 1] + str(i)
             logging.info(f' Downloading page_{page_url}...')
             requested_url = requests.get(page_url, headers=headers)
@@ -105,11 +106,20 @@ class DataScraper:
                 user_score_db = 0
             with connection.cursor() as cur:
                 cur.execute(f"""INSERT INTO game
-                            (id, link, title, date, platform)
-                            VALUES ("{row}", "{link_db}", "{title_db}", "{date_db}", "{platform_db}");""")
+                            (id, title, date)
+                            VALUES ("{row}", "{title_db}", "{date_db}");""")
+                cur.execute(f"""INSERT INTO platform
+                            (game_id, platform)
+                            VALUES ("{row}", "{platform_db}");""")
+                cur.execute(f"""INSERT INTO link_url
+                            (game_id, link)
+                            VALUES ("{row}", "{link_db}");""")
                 cur.execute(f"""INSERT INTO game_score
                             (game_id, ranking, meta_score, user_score)
                             VALUES ("{row}", "{ranking_db}", "{meta_score_db}", "{user_score_db}");""")
+                cur.execute("""ALTER TABLE `game_score` ADD FOREIGN KEY (`game_id`) REFERENCES `game` (`id`);""")
+                cur.execute("""ALTER TABLE `url_link` ADD FOREIGN KEY (`game_id`) REFERENCES `game` (`id`);""")
+                cur.execute("""ALTER TABLE `platform` ADD FOREIGN KEY (`id`) REFERENCES `game` (`id`);""")
                 if row % N_TRIPS_TO_COMMIT == 0:
                     connection.commit()
             connection.commit()

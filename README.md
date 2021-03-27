@@ -29,6 +29,7 @@ This command would result in the web_scraper scraping 10 webpages for the catego
 ### Data description:
 ***
 
+![title](EDR.png)
 
 | Category | Description |
 | ------ | ------ |
