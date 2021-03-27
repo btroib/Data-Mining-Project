@@ -7,13 +7,9 @@ from getpass import getpass
 import database_creator
 import logging
 from tqdm import tqdm
+import conf as CFG
 
 REQUIRED_NUM_OF_ARGS = 3
-POSSIBLE_CATEGORIES = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
-GAME_DATABASE = ['']
-PLATFORM_DATABASE = ['']
-GAME_SCORE_DATABASE = ['']
-N_TRIPS_TO_COMMIT = 10000
 
 # Logging configuration
 logging.basicConfig(filename='web_scraper.log', level=logging.INFO,
@@ -37,7 +33,7 @@ class DataScraper:
     def scrape_metacritic(self):
         """Executes the website scrapping, storing the data in a dictionary and generating a DataFrame"""
         headers = {'User-Agent': ''}
-        url = 'https://www.metacritic.com/browse/games/score/metascore/all/all/filtered?page=0'
+        url = CFG.METRACRITIC_URL
         for i in tqdm(range(self._pages_to_scrape)):
             page_url = url[0:len(url) - 1] + str(i)
             logging.info(f' Downloading page_{page_url}...')
@@ -45,7 +41,7 @@ class DataScraper:
             parsed_url = BeautifulSoup(requested_url.text, 'html.parser')
             for game in parsed_url.find_all('td', class_="clamp-summary-wrap"):
                 if "Link" in self._dic_keys:
-                    self._dic["Link"].append('https://www.metacritic.com' + str(game.find('a', class_="title"))
+                    self._dic["Link"].append(url[0:26] + str(game.find('a', class_="title"))
                                              .split('\"')[3])
                 if "Rank" in self._dic_keys:
                     self._dic["Rank"].append(game.find('span', class_="title numbered").text.split()[0].strip('.'))
@@ -69,10 +65,10 @@ class DataScraper:
         return df
 
     def add_to_database(self, password):
-        connection = pymysql.connect(host='localhost',
-                                     user='root',
+        connection = pymysql.connect(host=CFG.HOST,
+                                     user=CFG.USER,
                                      password=f'{password}',
-                                     database='metacritic',
+                                     database=CFG.DATABASE,
                                      cursorclass=pymysql.cursors.DictCursor)
         n_rows = len(self._dic[self._dic_keys[0]])
         for row in range(n_rows):
@@ -117,10 +113,7 @@ class DataScraper:
                 cur.execute(f"""INSERT INTO game_score
                             (game_id, ranking, meta_score, user_score)
                             VALUES ("{row}", "{ranking_db}", "{meta_score_db}", "{user_score_db}");""")
-                cur.execute("""ALTER TABLE `game_score` ADD FOREIGN KEY (`game_id`) REFERENCES `game` (`id`);""")
-                cur.execute("""ALTER TABLE `url_link` ADD FOREIGN KEY (`game_id`) REFERENCES `game` (`id`);""")
-                cur.execute("""ALTER TABLE `platform` ADD FOREIGN KEY (`id`) REFERENCES `game` (`id`);""")
-                if row % N_TRIPS_TO_COMMIT == 0:
+                if row % CFG.N_TRIPS_TO_COMMIT == 0:
                     connection.commit()
             connection.commit()
 

@@ -15,14 +15,17 @@ def create(password):
                         title varchar(255),
                         date varchar(255));""")
         cur.execute("""CREATE TABLE game_score
-                        (game_id int REFERENCES game(id),
+                        (game_id int,
                         ranking int,
                         meta_score float,
-                        user_score float);""")
+                        user_score float,
+                        FOREIGN KEY (game_id) REFERENCES game(id));""")
         cur.execute("""CREATE TABLE platform
-                        (game_id int REFERENCES game(id),
-                        platform varchar(255));""")
+                        (game_id int,
+                        platform varchar(255),
+                        FOREIGN KEY (game_id) REFERENCES game(id));""")
         cur.execute("""CREATE TABLE link_url
-                        (game_id int REFERENCES game(id),
-                        link varchar(255));""")
+                        (game_id int,
+                        link varchar(255),
+                        FOREIGN KEY (game_id) REFERENCES game(id));""")
     print('Database created.')
