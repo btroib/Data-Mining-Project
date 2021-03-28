@@ -8,13 +8,14 @@ import database_creator
 import logging
 from tqdm import tqdm
 import conf as CFG
+import youtube_trailer_finder
+
 
 REQUIRED_NUM_OF_ARGS = 3
 
 # Logging configuration
 logging.basicConfig(filename='web_scraper.log', level=logging.INFO,
                     format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
-
 
 class DataScraper:
 
@@ -62,6 +63,9 @@ class DataScraper:
                     self._dic["Game_Summary"].append(' '.join(game.find('div', class_="summary").text.split()))
         logging.info(f' Data Frame successfully created with {self._dic_keys}')
         df = pd.DataFrame(self._dic)
+        if "Youtube_Link" in self._dic_keys:
+            trailers = youtube_trailer_finder.get_youtube_trailer(self._dic["Title"])
+            self._dic["Youtube_Link"].append(trailers)
         return df
 
     def add_to_database(self, password):
@@ -100,6 +104,10 @@ class DataScraper:
                 user_score_db = self._dic['User_Score'][row]
             else:
                 user_score_db = 0
+            if 'Youtube_Link' in self._dic_keys:
+                youtube_link_db = self._dic['Youtube_Link'][row]
+            else:
+                youtube_link_db = 'NULL'
             with connection.cursor() as cur:
                 cur.execute(f"""INSERT INTO game
                             (id, title, date)
@@ -108,14 +116,15 @@ class DataScraper:
                             (game_id, platform)
                             VALUES ("{row}", "{platform_db}");""")
                 cur.execute(f"""INSERT INTO link_url
-                            (game_id, link)
-                            VALUES ("{row}", "{link_db}");""")
+                            (game_id, metacritic_link, youtube_link)
+                            VALUES ("{row}", "{link_db}", "{youtube_link_db}");""")
                 cur.execute(f"""INSERT INTO game_score
                             (game_id, ranking, meta_score, user_score)
                             VALUES ("{row}", "{ranking_db}", "{meta_score_db}", "{user_score_db}");""")
                 if row % CFG.N_TRIPS_TO_COMMIT == 0:
                     connection.commit()
             connection.commit()
+
 
 
 def parser():

@@ -6,7 +6,7 @@
 ### Program description:
 ***
 
-This program scrapes Metacritic's website for data regarding gaming. There are 182 pages on Metacritics gaming rank, each page contains 100 games from highest to lowest Metacritic ranking. This web_scraper is capable of scraping the following data from each game: Link, Rank, Title, Date (release), Platform, Meta Score, and User Score. The user can choose how many web pages you request to scrape as well as which data to scrape for.
+This program scrapes Metacritic's website for data regarding gaming. There are 182 pages on Metacritics gaming rank, each page contains 100 games from highest to lowest Metacritic ranking. This web_scraper is capable of scraping the following data from each game: Link, Rank, Title, Date (release), Platform, Meta Score, and User Score. Additionally, this program can also return the first result of a query on Youtube of the games trailer using a google data API. The user can choose how many web pages you request to scrape as well as which data to scrape for.
 
 ### Usage:
 ***
@@ -44,6 +44,13 @@ The description of all the categories is below:
 | Platform| The platform in which the game runs on. |
 | Meta_Score | Meta_Score is Metacritics score given by professional reviews. |
 | User_Score | User_Score is the score given by users on Metacritic. |
+| Youtube_Link | The game's trailer as per the first result of a youtube query. * |
+
+*Requires a google API key by the user.
+
+### Installation:
+***
+Besides installing the requirements file to their virtual enviroment the user must create an API key at https://console.cloud.google.com/apis and add the key to the conf file in order to run the 'Youtube_Link' feature.
 
 
 ### Authors:

@@ -26,6 +26,7 @@ def create(password):
                         FOREIGN KEY (game_id) REFERENCES game(id));""")
         cur.execute("""CREATE TABLE link_url
                         (game_id int,
-                        link varchar(255),
+                        metacritic_link varchar(255),
+                        youtube_link varchar(255),
                         FOREIGN KEY (game_id) REFERENCES game(id));""")
     print('Database created.')
