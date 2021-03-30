@@ -50,7 +50,7 @@ The description of all the categories is below:
 
 ### Installation:
 ***
-Besides installing the requirements file to their virtual enviroment the user must create an API key at https://console.cloud.google.com/apis and add the key to the conf file in order to run the 'Youtube_Link' feature.
+Besides installing the requirements file to their virtual enviroment the user must create an API key at https://console.cloud.google.com/apis and add the key to the conf file variable API_KEY (string format) in order to run the 'Youtube_Link' feature.
 
 
 ### Authors:
