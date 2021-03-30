@@ -4,4 +4,5 @@ HOST = 'localhost'
 USER = 'root'
 DATABASE = 'metacritic'
 API_KEY = ''
+#category choices than can be scraped
 cat_choices = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
