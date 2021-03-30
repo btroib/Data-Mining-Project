@@ -69,6 +69,7 @@ class DataScraper:
         return df
 
     def add_to_database(self, password):
+        """Function that adds the scraped data to the metacritic database"""
         connection = pymysql.connect(host=CFG.HOST,
                                      user=CFG.USER,
                                      password=f'{password}',

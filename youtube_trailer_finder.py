@@ -3,6 +3,7 @@ import conf as CFG
 
 
 def get_youtube_trailer(titles):
+    """This function uses an Youtube API to parse the game trailers based on game titles scraped by the Web scraper"""
     youtube_trailer_list = []
     api_key = CFG.API_KEY
     youtube = build(CFG.SERVICE_NAME, CFG.VERSION, developerKey=api_key)
