@@ -139,8 +139,11 @@ def parser():
     args = parse.parse_args()
     number_pages = args.n
     categories_to_scrape = args.cat
-    if number_pages > 182:
-        raise Exception
+
+    if number_pages > 182 or number_pages < 1:
+        logging.error(f" It is not possible to scrape {number_pages} pages")
+        raise Exception(f"Invalid number of pages to scrape! Scraper can't run."
+                        f" \nExpected: between 1 and 182. \nReceived: {number_pages}")
 
     if not categories_to_scrape:
         categories_to_scrape = ['Title', 'Rank']
@@ -149,15 +152,12 @@ def parser():
 
 
 def main():
-    try:
-        inp = parser()
-        scraper = DataScraper(inp[0], inp[1])
-        print(scraper.scrape_metacritic())
-        password = getpass('Insert your MySQL password:')
-        database_creator.create(password)
-        scraper.add_to_database(password)
-    except Exception:
-        logging.error(" It is not possible to scrape more than 182 pages")
+    inp = parser()
+    scraper = DataScraper(inp[0], inp[1])
+    print(scraper.scrape_metacritic())
+    password = getpass('Insert your MySQL password:')
+    database_creator.create(password)
+    scraper.add_to_database(password)
 
 
 if __name__ == '__main__':

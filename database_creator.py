@@ -6,6 +6,7 @@ def create(password):
                                  user='root',
                                  password=f'{password}',
                                  cursorclass=pymysql.cursors.DictCursor)
+
     with connection.cursor() as cur:
         cur.execute('DROP DATABASE IF EXISTS metacritic;')
         cur.execute('CREATE DATABASE metacritic;')
