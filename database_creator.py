@@ -12,8 +12,8 @@ def create(password):
         cur.execute('USE metacritic;')
         cur.execute("""CREATE TABLE game
                         (id int PRIMARY KEY,
-                        title varchar(255),
-                        date varchar(255));""")
+                        title varchar(100),
+                        date varchar(100));""")
         cur.execute("""CREATE TABLE game_score
                         (game_id int,
                         ranking int,
@@ -22,7 +22,7 @@ def create(password):
                         FOREIGN KEY (game_id) REFERENCES game(id));""")
         cur.execute("""CREATE TABLE platform
                         (game_id int,
-                        platform varchar(255),
+                        platform varchar(30),
                         FOREIGN KEY (game_id) REFERENCES game(id));""")
         cur.execute("""CREATE TABLE link_url
                         (game_id int,

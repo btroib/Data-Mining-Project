@@ -10,12 +10,12 @@ from tqdm import tqdm
 import conf as CFG
 import youtube_trailer_finder
 
-
 REQUIRED_NUM_OF_ARGS = 3
 
 # Logging configuration
 logging.basicConfig(filename='web_scraper.log', level=logging.INFO,
                     format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+
 
 class DataScraper:
 
@@ -126,16 +126,14 @@ class DataScraper:
             connection.commit()
 
 
-
 def parser():
-    " Function that parsers the user input using argparse"
+    """Function that parsers the user input using argparse"""
     parse = argparse.ArgumentParser()
-    cat_choices = ['Link', 'Rank', 'Title', 'Date', 'Platform', 'Meta_Score', 'User_Score', 'Game_Summary']
 
     parse.add_argument('--n', nargs="?", const=1, metavar='Number of pages',
                        help="Number of web pages to be scraped from Metacritic's Game website.", type=int)
 
-    parse.add_argument('--cat', metavar='Data categories', choices=cat_choices, help="Categories to be scraped.",
+    parse.add_argument('--cat', metavar='Data categories', choices=CFG.cat_choices, help="Categories to be scraped.",
                        nargs='*', type=str.title, required=True)
 
     args = parse.parse_args()
@@ -164,4 +162,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

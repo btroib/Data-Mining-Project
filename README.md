@@ -31,7 +31,7 @@ This command would result in the web_scraper scraping 10 webpages for the catego
 
 The Entity Relationship Diagram contains four tables, see below the diagram:
 
-![title](EDR.png)
+![title](ERD.png)
 
 The description of all the categories is below:
 
@@ -56,4 +56,4 @@ Besides installing the requirements file to their virtual enviroment the user mu
 ### Authors:
 ***
 
-__André Gutnik__ & __Brian Troib__
+__Andre Gutnik__ & __Brian Troib__
